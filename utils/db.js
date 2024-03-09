@@ -7,7 +7,6 @@ class DBClient {
     const database = process.env.DB_DATABASE || 'files_manager';
     const url = `mongodb://${host}:${port}`;
     this.client = new MongoClient(url);
-    this.client = new MongoClient(url);
     this.db = null;
     this.client.connect((err) => {
       if (err) {
@@ -36,4 +35,4 @@ class DBClient {
 
 const dbClient = new DBClient();
 
-export default dbClient;
+module.exports = dbClient;
