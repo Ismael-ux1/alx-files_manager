@@ -1,7 +1,5 @@
-const sha1 = require('sha1');
+const crypto = require('crypto');
 const dbClient = require('../utils/db');
-const { ObjectId } = require('mongodb');
-const redisClient = require('../utils/redis');
 
 class UsersController {
   static async postNew(req, res) {
