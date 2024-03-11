@@ -28,7 +28,7 @@ class UsersController {
       const result = await dbClient.db.collection('users').insertOne({ email, password: hashedPassword });
 
       // Return the newly created user
-      const newUser = { id: result.insertedId, email };
+      const newUser = { _id: result.insertedId, email, password: hashedPassword };
       return res.status(201).json(newUser);
     } catch (error) {
       console.error('Error creating user:', error);
