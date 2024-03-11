@@ -1,11 +1,12 @@
 const { ObjectId } = require('mongodb');
+const sha1 = require('sha1');
 const dbClient = require('../utils/db');
-const crypto = require('crypto');
 
 class UsersController {
   static async postNew(req, res) {
     const { email, password } = req.body;
 
+    // Check if email and password are provided
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
     }
@@ -14,15 +15,26 @@ class UsersController {
       return res.status(400).json({ error: 'Missing password' });
     }
 
-    const user = await dbClient.db.collection('users').findOne({ email });
-    if (user) {
-      return res.status(400).json({ error: 'Already exist' });
+    try {
+      // Check if the email already exists
+      const userExists = await dbClient.db.collection('users').findOne({ email });
+      if (userExists) {
+        return res.status(400).json({ error: 'Already exists' });
+      }
+
+      // Hash the password
+      const hashedPassword = sha1(password);
+
+      // Insert the new user into the database
+      const result = await dbClient.db.collection('users').insertOne({ email, password: hashedPassword });
+
+      // Return the newly created user
+      const newUser = { id: result.insertedId, email };
+      res.status(201).json(newUser);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-
-    const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
-    const newUser = await dbClient.users.insertOne({ email, password: hashedPassword });
-
-    return res.status(201).json({ email, id: newUser.insertedId });
   }
 }
 
