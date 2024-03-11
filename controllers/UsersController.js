@@ -1,4 +1,3 @@
-const { ObjectId } = require('mongodb');
 const sha1 = require('sha1');
 const dbClient = require('../utils/db');
 
@@ -30,10 +29,10 @@ class UsersController {
 
       // Return the newly created user
       const newUser = { id: result.insertedId, email };
-      res.status(201).json(newUser);
+      return res.status(201).json(newUser);
     } catch (error) {
       console.error('Error creating user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 }
