@@ -25,7 +25,7 @@ class UsersController {
       const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
 
       // Insert the new user into the database
-      const result = await dbClient.db.collection('users').insertOne({ email, password: hashedPassword });
+      const result = await dbClient.users.insertOne({ email, password: hashedPassword });
 
       // Return the newly created user
       const newUser = { _id: result.insertedId, email, password: hashedPassword };
