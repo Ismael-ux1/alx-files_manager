@@ -100,6 +100,34 @@ class FilesController {
 
     return res.status(200).json(files);
   }
+
+  static async putPublish(req, res) {
+    try {
+      const file = await File.findById(req.params.id);
+      if (!file) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      file.isPublic = true;
+      await file.save();
+      return res.status(200).json(file);
+    } catch (error) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
+
+  static async putUnpublish(req, res) {
+    try {
+      const file = await File.findById(req.params.id);
+      if (!file) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      file.isPublic = false;
+      await file.save();
+      return res.status(200).json(file);
+    } catch (error) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
 }
 
 module.exports = FilesController;
