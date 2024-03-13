@@ -128,6 +128,27 @@ class FilesController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
   }
+  static async getFile(req, res) {
+    try {
+      const file = await File.findById(req.params.id);
+      if (!file) {
+        return res.status(404).send({ error: 'Not found' });
+      }
+      if (!file.isPublic && (!req.user || req.user.id !== file.userId)) {
+        return res.status(404).send({ error: 'Not found' });
+      }
+      if (file.type === 'folder') {
+        return res.status(400).send({ error: "A folder doesn't have content" });
+      }
+      if (!fs.existsSync(file.localPath)) {
+        return res.status(404).send({ error: 'Not found' });
+      }
+      const mimeType = mime.lookup(file.name) || 'application/octet-stream';
+      res.type(mimeType).sendFile(file.localPath);
+    } catch (error) {
+      res.status(500).send({ error: 'Internal Server Error' });
+    }
+  }
 }
 
 module.exports = FilesController;
