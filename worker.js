@@ -1,23 +1,29 @@
 const Queue = require('bull');
-const imageThumbnail = require('image-thumbnail');
+const fs = require('fs').promises;
+const path = require('path');
 const { getFileById } = require('./utils/db');
 
-const fileQueue = new Queue('fileQueue', 'redis://127.0.0.1:6379');
 
-fileQueue.process(async (job, done) => {
-  const { userId, fileId } = job.data;
+const userQueue = new Queue('userQueue', 'redis://127.0.0.1:6379');
 
-  if (!fileId) throw new Error('Missing fileId');
-  if (!userId) throw new Error('Missing userId');
+userQueue.process(async (job) => {
+  const { userId } = job.data;
 
-  const file = await getFileById(fileId, userId);
-  if (!file) throw new Error('File not found');
+  if (!userId) {
+    throw new Error('Missing userId');
+  }
 
-  const sizes = [500, 250, 100];
-  await Promise.all(sizes.map(async (size) => {
-    const thumbnail = await imageThumbnail(file.path, { width: size });
-    const thumbnailPath = `${file.path}_${size}`;
-  }));
+  const user = await getUserById(ObjectId(userId));
 
-  done();
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  // Send welcome email
+  sendWelcomeEmail(user.email);
+
+  // Log welcome message to console
+  console.log(`Welcome ${user.email}!`);
 });
+
+
